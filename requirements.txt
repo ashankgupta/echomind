@@ -1,0 +1,6 @@
+chromadb
+fastapi
+uvicorn
+streamlit
+sentence-transformers
+

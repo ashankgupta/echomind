@@ -30,7 +30,7 @@ A personal memory embedding and search system that allows you to store text memo
 
 2. Clone the repository:
    ```
-   git clone https://github.com/Ashank007/echomind
+   git clone https://github.com/ashangupta/echomind
    cd echomind
    ```
 

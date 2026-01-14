@@ -1,6 +1,8 @@
 import streamlit as st
-import requests
-import os
+from components.add_memory import render_add_memory
+from components.search_memories import render_search_memories
+from components.manage_memories import render_manage_memories
+from utils import check_api_status
 
 st.set_page_config(
     page_title="EchoMind - Personal Memory Assistant",
@@ -8,8 +10,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
-API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 # Custom CSS for better styling
 st.markdown("""
@@ -20,6 +20,7 @@ st.markdown("""
         color: #1f77b4;
         text-align: center;
         margin-bottom: 2rem;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     }
     .section-header {
         font-size: 1.5rem;
@@ -27,28 +28,62 @@ st.markdown("""
         color: #2c3e50;
         margin-top: 1rem;
         margin-bottom: 1rem;
+        border-bottom: 2px solid #1f77b4;
+        padding-bottom: 0.5rem;
     }
     .memory-card {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 1rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
         margin: 0.5rem 0;
         border-left: 5px solid #1f77b4;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    .memory-card:hover {
+        transform: translateY(-2px);
     }
     .stButton>button {
-        background-color: #1f77b4;
+        background: linear-gradient(135deg, #1f77b4 0%, #155a8a 100%);
         color: white;
-        border-radius: 5px;
+        border-radius: 8px;
         border: none;
-        padding: 0.5rem 1rem;
-        font-weight: 500;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        background-color: #155a8a;
+        background: linear-gradient(135deg, #155a8a 0%, #0d3a5c 100%);
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
     .stTextInput>div>div>input, .stTextArea>div>textarea {
-        border-radius: 5px;
-        border: 1px solid #ddd;
+        border-radius: 8px;
+        border: 2px solid #ddd;
+        padding: 0.75rem;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+    .stTextInput>div>div>input:focus, .stTextArea>div>textarea:focus {
+        border-color: #1f77b4;
+        box-shadow: 0 0 0 2px rgba(31, 119, 180, 0.2);
+    }
+    .sidebar-content {
+        background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1rem;
+        border-radius: 10px;
+    }
+    @media (max-width: 768px) {
+        .main-header {
+            font-size: 2rem;
+        }
+        .section-header {
+            font-size: 1.25rem;
+        }
+        .memory-card {
+            padding: 1rem;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -57,111 +92,30 @@ st.markdown('<div class="main-header">🧠 EchoMind - Personal Memory Assistant<
 
 # Sidebar for information
 with st.sidebar:
-    st.header("ℹ️ About")
-    st.write("EchoMind helps you store and retrieve personal memories using AI-powered embeddings.")
-    st.write("**Features:**")
-    st.write("- Add new memories")
-    st.write("- Search similar memories")
-    st.write("- Manage stored memories")
+    st.markdown('<div class="sidebar-content">', unsafe_allow_html=True)
+    st.header("ℹ️ About EchoMind")
+    st.write("🧠 **EchoMind** is your personal memory assistant powered by AI embeddings.")
+    st.write("**Key Features:**")
+    st.write("✨ Add and store personal memories")
+    st.write("🔍 Search for similar memories instantly")
+    st.write("📚 Manage and organize your memories")
     st.markdown("---")
-    st.write("**API Status:**")
-    try:
-        response = requests.get(f"{API_URL}/all_memories")
-        if response.status_code == 200:
-            st.success("✅ Connected")
-        else:
-            st.error("❌ Disconnected")
-    except:
-        st.error("❌ Disconnected")
+    st.write("**System Status:**")
+    if check_api_status():
+        st.success("🟢 API Connected")
+    else:
+        st.error("🔴 API Disconnected")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Main content with tabs
 tab1, tab2, tab3 = st.tabs(["📝 Add Memory", "🔍 Search Memories", "📚 Manage Memories"])
 
 with tab1:
-    st.markdown('<div class="section-header">Add a New Memory</div>', unsafe_allow_html=True)
-    with st.container():
-        memory_text = st.text_area("Enter your memory or note:", height=150, placeholder="Write something meaningful to remember...")
-        col1, col2, col3 = st.columns([1, 1, 3])
-        with col1:
-            add_button = st.button("➕ Add Memory", use_container_width=True)
-        with col2:
-            clear_button = st.button("🗑️ Clear", use_container_width=True)
-
-        if clear_button:
-            memory_text = ""
-            st.rerun()
-
-        if add_button:
-            if memory_text.strip():
-                with st.spinner("Storing memory..."):
-                    response = requests.post(f"{API_URL}/ingest", json={"text": memory_text})
-                if response.status_code == 200:
-                    data = response.json()
-                    st.success(f"✅ Memory stored successfully! ID: {data.get('id')}")
-                    memory_text = ""
-                else:
-                    st.error("❌ Failed to store memory. Please try again.")
-            else:
-                st.warning("⚠️ Please enter some text before adding.")
+    render_add_memory()
 
 with tab2:
-    st.markdown('<div class="section-header">Search Your Memories</div>', unsafe_allow_html=True)
-    with st.container():
-        query_text = st.text_input("Enter your search query:", placeholder="What are you looking for?")
-        col1, col2 = st.columns([1, 5])
-        with col1:
-            search_button = st.button("🔎 Search", use_container_width=True)
-
-        if search_button:
-            if query_text.strip():
-                with st.spinner("Searching memories..."):
-                    response = requests.post(
-                        f"{API_URL}/context",
-                        json={"query": query_text, "top_k": 5},
-                    )
-                if response.status_code == 200:
-                    data = response.json()
-                    contexts = data.get("context", [])
-                    if contexts:
-                        st.markdown("### 📋 Found Memories:")
-                        for i, doc in enumerate(contexts, 1):
-                            st.markdown(f'<div class="memory-card"><strong>{i}.</strong> {doc}</div>', unsafe_allow_html=True)
-                    else:
-                        st.info("ℹ️ No matching memories found. Try a different query.")
-                else:
-                    st.error("❌ Search failed. Please check your connection.")
-            else:
-                st.warning("⚠️ Please enter a search query.")
+    render_search_memories()
 
 with tab3:
-    st.markdown('<div class="section-header">Manage Your Memories</div>', unsafe_allow_html=True)
-    with st.container():
-        if st.button("🔄 Refresh Memories"):
-            st.rerun()
-
-        response = requests.get(f"{API_URL}/all_memories")
-        if response.status_code == 200:
-            data = response.json()
-            documents = data.get("documents", [])
-            ids = data.get("ids", [])
-            if documents and ids:
-                st.markdown(f"### 📚 All Memories ({len(documents)} total)")
-                for i, (doc, doc_id) in enumerate(zip(documents, ids), 1):
-                    with st.expander(f"Memory {i}: {doc[:50]}..."):
-                        st.write(doc)
-                        col1, col2 = st.columns([4, 1])
-                        with col2:
-                            if st.button("🗑️ Delete", key=f"del-{doc_id}"):
-                                with st.spinner("Deleting..."):
-                                    del_res = requests.delete(f"{API_URL}/delete", json={"id": doc_id})
-                                if del_res.status_code == 200:
-                                    st.success("✅ Memory deleted successfully!")
-                                    st.rerun()
-                                else:
-                                    st.error("❌ Failed to delete memory.")
-            else:
-                st.info("ℹ️ No memories stored yet. Add some in the 'Add Memory' tab!")
-        else:
-            st.error("❌ Failed to fetch memories. Please check your connection.")
-
+    render_manage_memories()
 

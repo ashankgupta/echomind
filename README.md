@@ -2,21 +2,41 @@
 
 ## Description
 
-A personal memory embedding and search system that allows you to store text memories and retrieve them based on semantic similarity using vector embeddings.
+EchoMind is a personal memory assistant that leverages AI-powered vector embeddings to store and retrieve your memories based on semantic similarity. Whether it's notes, ideas, or personal reflections, EchoMind helps you organize and rediscover your thoughts effortlessly.
 
 ## Features
 
-- Add personal memories via text input
-- Search memories using natural language queries
-- View all stored memories
-- Delete unwanted memories
-- Vector-based similarity search with configurable threshold
+- 🧠 **Add Memories**: Store personal notes and memories as text
+- 🔍 **Smart Search**: Find similar memories using natural language queries
+- 📚 **Manage Memories**: View, organize, and delete stored memories
+- ⚡ **Fast Retrieval**: Vector-based similarity search with configurable thresholds
+- 🎨 **Modern UI**: Clean, responsive interface built with Streamlit
+
+## Architecture
+
+EchoMind follows a modular architecture:
+
+- **Backend (FastAPI)**: Handles API requests, vector embeddings, and database operations
+  - `app/config.py`: Configuration and model loading
+  - `app/models.py`: Pydantic request/response models
+  - `app/database.py`: ChromaDB setup and operations
+  - `app/routes.py`: API endpoints
+  - `main.py`: Application entry point
+
+- **Frontend (Streamlit)**: User interface for interacting with memories
+  - `components/`: Modular UI components for each feature
+  - `utils.py`: API interaction utilities
+  - `streamlit_app.py`: Main app with tabs and layout
+
+- **Infrastructure**: Docker containers for easy deployment
 
 ## Technologies
 
-- Backend: FastAPI, ChromaDB, Sentence Transformers
-- Frontend: Streamlit
-- Embeddings: all-MiniLM-L6-v2 model
+- **Backend**: FastAPI, ChromaDB, Sentence Transformers
+- **Frontend**: Streamlit
+- **Embeddings**: all-MiniLM-L6-v2 model
+- **Database**: ChromaDB vector database
+- **Deployment**: Docker & Docker Compose
 
 ## Prerequisites
 
@@ -66,14 +86,39 @@ That's it! The backend and frontend will start automatically.
    ```
 
 5. Run the FastAPI server:
-   ```
-   uvicorn main:app --reload
-   ```
+    ```
+    uvicorn main:app --reload
+    ```
 
 6. In another terminal, run the Streamlit app:
-   ```
-   streamlit run streamlit_app.py
-   ```
+    ```
+    streamlit run streamlit_app.py
+    ```
+
+## Project Structure
+
+```
+echomind/
+├── app/                    # Backend package
+│   ├── __init__.py
+│   ├── config.py          # Configuration and model setup
+│   ├── database.py        # ChromaDB operations
+│   ├── models.py          # Pydantic models
+│   └── routes.py          # API endpoints
+├── components/            # Frontend components
+│   ├── add_memory.py
+│   ├── search_memories.py
+│   └── manage_memories.py
+├── utils.py               # API utilities
+├── main.py                # FastAPI app entry point
+├── streamlit_app.py       # Streamlit app entry point
+├── requirements.txt       # Python dependencies
+├── pyproject.toml         # Project metadata
+├── Dockerfile             # Backend container
+├── Dockerfile.streamlit   # Frontend container
+├── docker-compose.yml     # Multi-container setup
+└── README.md
+```
 
 ## Usage
 

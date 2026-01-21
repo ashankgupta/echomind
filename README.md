@@ -6,11 +6,11 @@ EchoMind is a personal memory assistant that leverages AI-powered vector embeddi
 
 ## Features
 
-- 🧠 **Add Memories**: Store personal notes and memories as text
-- 🔍 **Smart Search**: Find similar memories using natural language queries
-- 📚 **Manage Memories**: View, organize, and delete stored memories
-- ⚡ **Fast Retrieval**: Vector-based similarity search with configurable thresholds
-- 🎨 **Modern UI**: Clean, responsive interface built with Streamlit
+- **Add Memories**: Store personal notes and memories as text
+- **Smart Search**: Find similar memories using natural language queries
+- **Manage Memories**: View, organize, and delete stored memories
+- **Fast Retrieval**: Vector-based similarity search with configurable thresholds
+- **Modern UI**: Clean, responsive interface built with Streamlit
 
 ## Architecture
 
